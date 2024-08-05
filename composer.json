@@ -92,10 +92,5 @@
         "check-style": "ecs check",
         "fix-style": "ecs check --fix",
         "phpunit": "phpunit"
-    },
-    "extra": {
-        "unused": [
-            "symfony/http-client"
-        ]
     }
 }
