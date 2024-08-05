@@ -3,20 +3,28 @@
             xmlns="http://symfony.com/schema/dic/serializer-mapping"
             xsi:schemaLocation="http://symfony.com/schema/dic/serializer-mapping https://symfony.com/schema/dic/serializer-mapping/serializer-mapping-1.0.xsd"
 >
-    <class name="Setono\SyliusKlaviyoPlugin\DTO\Event">
-        <attribute name="event">
+    <class name="Setono\SyliusKlaviyoPlugin\DTO\Properties\Location">
+        <attribute name="address1" serialized-name="address1">
             <group>setono:sylius-klaviyo:event</group>
         </attribute>
 
-        <attribute name="customerProperties" serialized-name="customer_properties">
+        <attribute name="address2" serialized-name="address2">
             <group>setono:sylius-klaviyo:event</group>
         </attribute>
 
-        <attribute name="properties">
+        <attribute name="zip" serialized-name="zip">
             <group>setono:sylius-klaviyo:event</group>
         </attribute>
 
-        <attribute name="timestamp" serialized-name="time">
+        <attribute name="city" serialized-name="city">
+            <group>setono:sylius-klaviyo:event</group>
+        </attribute>
+
+        <attribute name="region" serialized-name="region">
+            <group>setono:sylius-klaviyo:event</group>
+        </attribute>
+
+        <attribute name="country" serialized-name="country">
             <group>setono:sylius-klaviyo:event</group>
         </attribute>
     </class>
