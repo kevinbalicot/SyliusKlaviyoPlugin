@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\SyliusKlaviyoPlugin\DTO\Properties;
 
+use Brick\PhoneNumber\PhoneNumber;
+use Brick\PhoneNumber\PhoneNumberParseException;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 
@@ -40,7 +42,28 @@ class CustomerProperties extends Base
         $this->email = $customer->getEmailCanonical();
         $this->firstName = $customer->getFirstName();
         $this->lastName = $customer->getLastName();
-        $this->phoneNumber = $customer->getPhoneNumber();
+
+        $customerPhoneNumber = $customer->getPhoneNumber();
+        if (null !== $customerPhoneNumber) {
+            $phoneNumber = null;
+            try {
+                $phoneNumber = PhoneNumber::parse($customerPhoneNumber);
+            } catch (PhoneNumberParseException) {
+                if (null !== $defaultAddress && null !== $defaultAddress->getCountryCode()) {
+                    try {
+                        $phoneNumber = PhoneNumber::parse(
+                            $customerPhoneNumber,
+                            $defaultAddress->getCountryCode()
+                        );
+                    } catch (PhoneNumberParseException) {
+                        // Do nothing, phoneNumber is already null
+                    }
+                }
+            }
+            if (null !== $phoneNumber) {
+                $this->phoneNumber = (string) $phoneNumber;
+            }
+        }
 
         if ($defaultAddress) {
             $this->location = $this->getPropertiesFactory()->create(Location::class, $defaultAddress);
