@@ -42,28 +42,7 @@ class CustomerProperties extends Base
         $this->email = $customer->getEmailCanonical();
         $this->firstName = $customer->getFirstName();
         $this->lastName = $customer->getLastName();
-
-        $customerPhoneNumber = $customer->getPhoneNumber();
-        if (null !== $customerPhoneNumber) {
-            $phoneNumber = null;
-            try {
-                $phoneNumber = PhoneNumber::parse($customerPhoneNumber);
-            } catch (PhoneNumberParseException) {
-                if (null !== $defaultAddress && null !== $defaultAddress->getCountryCode()) {
-                    try {
-                        $phoneNumber = PhoneNumber::parse(
-                            $customerPhoneNumber,
-                            $defaultAddress->getCountryCode()
-                        );
-                    } catch (PhoneNumberParseException) {
-                        // Do nothing, phoneNumber is already null
-                    }
-                }
-            }
-            if (null !== $phoneNumber) {
-                $this->phoneNumber = (string) $phoneNumber;
-            }
-        }
+        $this->phoneNumber = $this->getInternationalPhoneNumber($customer->getPhoneNumber(), $defaultAddress);
 
         if ($defaultAddress) {
             $this->location = $this->getPropertiesFactory()->create(Location::class, $defaultAddress);
@@ -72,6 +51,31 @@ class CustomerProperties extends Base
         if ($customer->isSubscribedToNewsletter()) {
             $this->subscriptions = $this->getPropertiesFactory()->create(Subscriptions::class);
             $this->subscriptions->emailMarketingSubscribe();
+        }
+    }
+
+    protected function getInternationalPhoneNumber(?string $input, ?AddressInterface $address): ?string
+    {
+        if (null === $input) {
+            return null;
+        }
+
+        try {
+            return (string) PhoneNumber::parse($input);
+        } catch (PhoneNumberParseException) {
+            $addressCountryCode = $address?->getCountryCode();
+            if (null === $addressCountryCode) {
+                return null;
+            }
+
+            try {
+                return (string) PhoneNumber::parse(
+                    $input,
+                    $addressCountryCode
+                );
+            } catch (PhoneNumberParseException) {
+                return null;
+            }
         }
     }
 }
