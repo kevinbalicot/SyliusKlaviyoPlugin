@@ -46,6 +46,8 @@ class CustomerProperties extends Base
 
         if ($defaultAddress) {
             $this->location = $this->getPropertiesFactory()->create(Location::class, $defaultAddress);
+        } elseif ($customer->getAddresses()->count() > 0) {
+            $this->location = $this->getPropertiesFactory()->create(Location::class, $customer->getAddresses()->first());
         }
 
         if ($customer->isSubscribedToNewsletter()) {
