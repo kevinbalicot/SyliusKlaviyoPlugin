@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\SyliusKlaviyoPlugin\EventSubscriber;
 
+use Brick\PhoneNumber\PhoneNumber;
+use Brick\PhoneNumber\PhoneNumberParseException;
 use Setono\SyliusKlaviyoPlugin\DTO\Properties\CustomerProperties;
 use Setono\SyliusKlaviyoPlugin\DTO\Properties\Factory\PropertiesFactoryInterface;
 use Setono\SyliusKlaviyoPlugin\DTO\Properties\Location;
@@ -46,6 +48,11 @@ final class UpdateCustomerPropertiesFromOrderSubscriber implements EventSubscrib
 
         $customerProperties->firstName = $address->getFirstName();
         $customerProperties->lastName = $address->getLastName();
+        try {
+            $customerProperties->phoneNumber = (string) PhoneNumber::parse($address->getPhoneNumber(), $address->getCountryCode());
+        } catch (PhoneNumberParseException) {
+            $customerProperties->phoneNumber = null;
+        }
         $customerProperties->phoneNumber = $address->getPhoneNumber();
         $customerProperties->location = $this->propertiesFactory->create(Location::class, $address);
     }
