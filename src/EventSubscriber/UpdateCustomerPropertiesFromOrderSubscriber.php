@@ -53,7 +53,6 @@ final class UpdateCustomerPropertiesFromOrderSubscriber implements EventSubscrib
         } catch (PhoneNumberParseException) {
             $customerProperties->phoneNumber = null;
         }
-        $customerProperties->phoneNumber = $address->getPhoneNumber();
         $customerProperties->location = $this->propertiesFactory->create(Location::class, $address);
     }
 }
