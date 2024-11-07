@@ -28,10 +28,15 @@ final class RestClient implements RestClientInterface
     public function get(string $endpoint): ResponseInterface
     {
         $endpoint = trim($endpoint, '/');
+        if (str_starts_with($endpoint, 'http')) {
+            $url = $endpoint;
+        } else {
+            $url = sprintf('%s/%s/', $this->baseUri, $endpoint);
+        }
 
         return $this->httpClient->request(
             'GET',
-            sprintf('%s/%s/', $this->baseUri, $endpoint),
+            $url,
             ['headers' => $this->getDefaultHeaders()],
         );
     }
