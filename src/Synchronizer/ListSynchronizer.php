@@ -39,8 +39,8 @@ final class ListSynchronizer implements ListSynchronizerInterface
         $this->logger->debug('Synchronizing lists from Klaviyo');
 
         $klaviyoLists = null;
+        $ids = [];
         do {
-            $ids = [];
             if (isset ($klaviyoLists)) {
                 $klaviyoLists = $this->restClient->get($klaviyoLists['links']['next'])->toArray();
             } else {
@@ -68,9 +68,8 @@ final class ListSynchronizer implements ListSynchronizerInterface
 
                 $ids[] = (int)$entity->getId();
             }
-
-            $this->listRepository->deleteAllBut($ids);
         } while (isset($klaviyoLists['links']['next']));
+        $this->listRepository->deleteAllBut($ids);
     }
 
     public function setLogger(LoggerInterface $logger): void
