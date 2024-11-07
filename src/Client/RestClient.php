@@ -25,7 +25,7 @@ final class RestClient implements RestClientInterface
         $this->revision = $revision;
     }
 
-    public function get(string $endpoint): ResponseInterface
+    public function get(string $endpoint, array $query = []): ResponseInterface
     {
         $endpoint = trim($endpoint, '/');
         if (str_starts_with($endpoint, 'http')) {
@@ -37,7 +37,10 @@ final class RestClient implements RestClientInterface
         return $this->httpClient->request(
             'GET',
             $url,
-            ['headers' => $this->getDefaultHeaders()],
+            [
+                'headers' => $this->getDefaultHeaders(),
+                'query' => $query,
+            ],
         );
     }
 

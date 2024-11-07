@@ -11,7 +11,7 @@ interface RestClientInterface
     /**
      * @param string $endpoint i.e. 'lists'
      */
-    public function get(string $endpoint): ResponseInterface;
+    public function get(string $endpoint, array $query = []): ResponseInterface;
 
     /**
      * @param string $endpoint i.e. 'list/WifVt/subscribe'
