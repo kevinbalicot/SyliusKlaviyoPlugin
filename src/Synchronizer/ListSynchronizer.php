@@ -68,8 +68,6 @@ final class ListSynchronizer implements ListSynchronizerInterface
 
                 $ids[] = (int)$entity->getId();
             }
-
-            $this->listRepository->deleteAllBut($ids);
         } while (isset($klaviyoLists['links']['next']));
     }
 
