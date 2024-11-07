@@ -38,33 +38,39 @@ final class ListSynchronizer implements ListSynchronizerInterface
     {
         $this->logger->debug('Synchronizing lists from Klaviyo');
 
-        $ids = [];
-        $klaviyoLists = $this->restClient->get('lists')->toArray();
+        $klaviyoLists = null;
+        do {
+            $ids = [];
+            if (isset ($klaviyoLists)) {
+                $klaviyoLists = $this->restClient->get($klaviyoLists['links']['next'])->toArray();
+            } else {
+                $klaviyoLists = $this->restClient->get('lists')->toArray();
+            }
+            foreach ($klaviyoLists['data'] as $klaviyoList) {
+                Assert::isArray($klaviyoList);
+                $dto = new ListData();
+                $dto->list_id = $klaviyoList['id'];
+                $dto->list_name = $klaviyoList['attributes']['name'];
 
-        foreach ($klaviyoLists['data'] as $klaviyoList) {
-            Assert::isArray($klaviyoList);
-            $dto = new ListData();
-            $dto->list_id = $klaviyoList['id'];
-            $dto->list_name = $klaviyoList['attributes']['name'];
+                $entity = $this->listRepository->findOneByKlaviyoId($dto->list_id);
 
-            $entity = $this->listRepository->findOneByKlaviyoId($dto->list_id);
+                if (null === $entity) {
+                    /** @var MemberListInterface $entity */
+                    $entity = $this->listFactory->createNew();
+                    $entity->setKlaviyoId($dto->list_id);
+                }
 
-            if (null === $entity) {
-                /** @var MemberListInterface $entity */
-                $entity = $this->listFactory->createNew();
-                $entity->setKlaviyoId($dto->list_id);
+                $entity->setName($dto->list_name);
+
+                $this->listRepository->add($entity);
+
+                $this->logger->debug(sprintf('Synchronized %s (id: %s)', $dto->list_name, $dto->list_id));
+
+                $ids[] = (int)$entity->getId();
             }
 
-            $entity->setName($dto->list_name);
-
-            $this->listRepository->add($entity);
-
-            $this->logger->debug(sprintf('Synchronized %s (id: %s)', $dto->list_name, $dto->list_id));
-
-            $ids[] = (int) $entity->getId();
-        }
-
-        $this->listRepository->deleteAllBut($ids);
+            $this->listRepository->deleteAllBut($ids);
+        } while (isset($klaviyoLists['links']['next']));
     }
 
     public function setLogger(LoggerInterface $logger): void
